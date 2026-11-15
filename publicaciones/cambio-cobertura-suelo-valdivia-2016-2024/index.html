@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cambio de cobertura de suelo en Valdivia 2016-2024 | Gabriel Quezada Mata et al., Cuadernos Geográficos</title>
+<meta name="description" content="Artículo de Gabriel Quezada Mata y otros en Cuadernos Geográficos (2026): teledetección multisensor y Random Forest para analizar el cambio de cobertura de suelo en Valdivia, Chile, 2016-2024.">
+<meta name="author" content="Gabriel Quezada Mata">
+<link rel="canonical" href="https://geobriel.github.io/publicaciones/cambio-cobertura-suelo-valdivia-2016-2024/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Gabriel Quezada Mata">
+<meta property="og:title" content="Cambio de cobertura de suelo en Valdivia 2016-2024 | Gabriel Quezada Mata et al., Cuadernos Geográficos">
+<meta property="og:description" content="Artículo de Gabriel Quezada Mata y otros en Cuadernos Geográficos (2026): teledetección multisensor y Random Forest para analizar el cambio de cobertura de suelo en Valdivia, Chile, 2016-2024.">
+<meta property="og:url" content="https://geobriel.github.io/publicaciones/cambio-cobertura-suelo-valdivia-2016-2024/">
+<meta property="og:image" content="https://geobriel.github.io/img/valdivia-zonas-climaticas-locales-2024.webp">
+<meta property="og:locale" content="es_CL">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#2e6a4e">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/estilo.css">
+<meta name="citation_title" content="Integración de Teledetección Multisensor y Aprendizaje Automático para el Análisis de Dinámicas de Cambio en la Cobertura/uso de Suelo en Ciudades en Metropolización. El Caso de Valdivia, Chile (2016-2024)">
+<meta name="citation_author" content="Quezada Mata, Gabriel">
+<meta name="citation_author_institution" content="Universidad Austral de Chile">
+<meta name="citation_author" content="Maturana Miranda, Francisco">
+<meta name="citation_author" content="Morales Soto, Mauricio">
+<meta name="citation_author" content="Iribarren Anacona, Pablo">
+<meta name="citation_publication_date" content="2026/01/22">
+<meta name="citation_journal_title" content="Cuadernos Geográficos">
+<meta name="citation_issn" content="2340-0129">
+<meta name="citation_volume" content="65">
+<meta name="citation_issue" content="1">
+<meta name="citation_firstpage" content="26">
+<meta name="citation_lastpage" content="50">
+<meta name="citation_doi" content="10.30827/cuadgeo.v65i1.32676">
+<meta name="citation_language" content="es">
+<meta name="citation_pdf_url" content="https://geobriel.github.io/publicaciones/quezada-mata-2026-cuadernos-geograficos.pdf">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Person",
+   "@id": "https://geobriel.github.io/#persona",
+   "name": "Gabriel Quezada Mata",
+   "givenName": "Gabriel",
+   "familyName": "Quezada Mata",
+   "alternateName": [
+    "Gabriel Quezada",
+    "Gabriel Quezada M.",
+    "Geobriel"
+   ],
+   "url": "https://geobriel.github.io/",
+   "image": "https://geobriel.github.io/img/gabriel-quezada-mata-geografo.jpg",
+   "jobTitle": "Geógrafo",
+   "sameAs": [
+    "https://orcid.org/0000-0003-1365-8584",
+    "https://github.com/Geobriel",
+    "https://www.youtube.com/@trapanautica",
+    "https://sites.google.com/view/gabrielquezada/p%C3%A1gina-principal"
+   ]
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://geobriel.github.io/#sitio",
+   "url": "https://geobriel.github.io/",
+   "name": "Gabriel Quezada Mata",
+   "inLanguage": "es",
+   "publisher": {
+    "@id": "https://geobriel.github.io/#persona"
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Inicio",
+     "item": "https://geobriel.github.io/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Publicaciones",
+     "item": "https://geobriel.github.io/publicaciones/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "Valdivia 2016-2024",
+     "item": "https://geobriel.github.io/publicaciones/cambio-cobertura-suelo-valdivia-2016-2024/"
+    }
+   ]
+  },
+  {
+   "@type": "ScholarlyArticle",
+   "headline": "Integración de Teledetección Multisensor y Aprendizaje Automático para el Análisis de Dinámicas de Cambio en l",
+   "name": "Integración de Teledetección Multisensor y Aprendizaje Automático para el Análisis de Dinámicas de Cambio en la Cobertura/uso de Suelo en Ciudades en Metropolización. El Caso de Valdivia, Chile (2016-2024)",
+   "alternativeHeadline": "Integration of Remote Sensing Multisensor and Machine Learning for the Analysis of Land Cover/Land Use Change Dynamics in Metropolitan Cities: The Case of Valdivia, Chile (2016-2024)",
+   "datePublished": "2026-01-22",
+   "inLanguage": "es",
+   "author": [
+    {
+     "@id": "https://geobriel.github.io/#persona"
+    },
+    {
+     "@type": "Person",
+     "name": "Francisco Maturana Miranda"
+    },
+    {
+     "@type": "Person",
+     "name": "Mauricio Morales Soto"
+    },
+    {
+     "@type": "Person",
+     "name": "Pablo Iribarren Anacona"
+    }
+   ],
+   "isPartOf": {
+    "@type": "PublicationIssue",
+    "issueNumber": "1",
+    "isPartOf": {
+     "@type": "PublicationVolume",
+     "volumeNumber": "65",
+     "isPartOf": {
+      "@type": "Periodical",
+      "name": "Cuadernos Geográficos",
+      "issn": "2340-0129"
+     }
+    }
+   },
+   "pageStart": "26",
+   "pageEnd": "50",
+   "sameAs": "https://doi.org/10.30827/cuadgeo.v65i1.32676",
+   "identifier": {
+    "@type": "PropertyValue",
+    "propertyID": "DOI",
+    "value": "10.30827/cuadgeo.v65i1.32676"
+   },
+   "license": "https://creativecommons.org/licenses/by-nc/3.0/",
+   "image": "https://geobriel.github.io/img/valdivia-zonas-climaticas-locales-2024.webp",
+   "keywords": "Sentinel, DEM, Random Forest, sensores remotos, Zonas Climáticas Locales, LULC, Valdivia"
+  }
+ ]
+}
+</script>
+</head>
+<body>
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="cabecera"><div class="envoltura">
+<a class="marca" href="/"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="var(--acento)"/><path d="M5 19c4-5 7-1 11-5s7-3 11 0M7 24c4-3 7 0 10-3s6-2 9 0M8 12c3-3 6-1 9-3s5-2 7 0" fill="none" stroke="var(--papel)" stroke-width="1.6" stroke-linecap="round"/></svg><span>Gabriel Quezada Mata</span></a>
+<nav class="nav" aria-label="Principal"><a href="/">Inicio</a><a href="/proyectos/">Proyectos</a><a href="/cartografia/">Mapas</a><a href="/publicaciones/">Publicaciones</a><a href="/cv/">CV</a><a href="/#contacto">Contacto</a><a href="/en/">English</a></nav>
+</div></header>
+<main id="contenido">
+<nav class="migas envoltura" aria-label="Ruta"><a href="/">Inicio</a> / <a href="/publicaciones/">Publicaciones</a> / Valdivia 2016 a 2024</nav>
+<section><div class="envoltura ficha">
+<p class="antetitulo">Artículo científico | Cuadernos Geográficos 65(1), 2026</p>
+<h1>Integración de Teledetección Multisensor y Aprendizaje Automático para el Análisis de Dinámicas de Cambio en la Cobertura/uso de Suelo en Ciudades en Metropolización. El Caso de Valdivia, Chile (2016-2024)</h1>
+<p><strong>Gabriel Quezada Mata</strong>, Francisco Maturana Miranda, Mauricio Morales Soto y Pablo Iribarren Anacona. Universidad Austral de Chile.</p>
+<div class="botones"><a class="boton lleno" href="/publicaciones/quezada-mata-2026-cuadernos-geograficos.pdf">Descargar PDF</a><a class="boton" href="https://doi.org/10.30827/cuadgeo.v65i1.32676">DOI: 10.30827/cuadgeo.v65i1.32676</a></div>
+<h2>Resumen</h2>
+<p>El avance de la urbanización y la presión sobre áreas de alto valor ecológico exige contar con estudios que puedan dar cuenta de tales procesos. Este trabajo analiza los cambios espaciotemporales según la clasificación de Zonas Climáticas Locales (ZCL) en la comuna de Valdivia, Chile, durante el período 2016-2024, mediante la integración de datos satelitales multisensor y técnicas de aprendizaje automático. La metodología combina datos de Sentinel-1, Sentinel-2 y ALOS PALSAR, adaptando el sistema ZCL para incluir categorías específicas de humedales y diferenciar entre bosque nativo y plantaciones forestales. Utilizando el algoritmo Random Forest, se alcanzó una precisión global superior al 96 % en la clasificación. Los resultados revelan una expansión urbana significativa del 47 % en las zonas construidas, con una tasa de crecimiento anual del 6 %, acompañada de una notable densificación en áreas periurbanas y rurales. Se identificó una reconfiguración del paisaje forestal, con un aumento de 40,28 km² en bosque nativo y una disminución de 25,14 km² en plantaciones forestales. La vegetación de los humedales experimentó un incremento del 8 % en su superficie. Este trabajo contribuye a la comprensión de las dinámicas en el cambio de la cobertura/uso de suelo de una ciudad en transición a la metropolización y ciudad humedal como Valdivia, demostrando el potencial de las técnicas de teledetección y aprendizaje automático para el monitoreo de tales cambios.</p>
+<p><strong>Palabras clave:</strong> Sentinel; DEM; Random Forest; Sensores remotos; Zonas Climáticas Locales; LULC.</p>
+<div class="galeria"><figure><img src="/img/valdivia-zonas-climaticas-locales-2016.webp" alt="Mapa de Zonas Climáticas Locales de la comuna de Valdivia en 2016" width="1280" height="1352" loading="lazy" decoding="async"><figcaption>Zonas Climáticas Locales de la comuna de Valdivia, 2016.</figcaption></figure><figure><img src="/img/valdivia-zonas-climaticas-locales-2024-mapa.webp" alt="Mapa de Zonas Climáticas Locales de la comuna de Valdivia en 2024" width="1280" height="1352" loading="lazy" decoding="async"><figcaption>Zonas Climáticas Locales de la comuna de Valdivia, 2024.</figcaption></figure></div>
+<h2 lang="en">Abstract</h2>
+<p lang="en"><em>Integration of Remote Sensing Multisensor and Machine Learning for the Analysis of Land Cover/Land Use Change Dynamics in Metropolitan Cities: The Case of Valdivia, Chile (2016-2024).</em> This study analyzes the spatiotemporal changes according to the Local Climate Zone (LCZ) classification in the commune of Valdivia, Chile, during 2016-2024, integrating multi-sensor satellite data (Sentinel-1, Sentinel-2 and ALOS PALSAR) and machine learning. Using Random Forest, overall accuracy exceeded 96 %. Built-up areas expanded by 47 %, native forest increased by 40.28 km², forest plantations decreased by 25.14 km² and wetland vegetation grew by 8 %.</p>
+<h2>Cómo citar</h2>
+<div class="cita">Quezada Mata, G., Maturana Miranda, F., Morales Soto, M. e Iribarren Anacona, P. (2026). Integración de Teledetección Multisensor y Aprendizaje Automático para el Análisis de Dinámicas de Cambio en la Cobertura/uso de Suelo en Ciudades en Metropolización. El Caso de Valdivia, Chile (2016-2024). <em>Cuadernos Geográficos</em>, 65(1), 26-50. <a href="https://doi.org/10.30827/cuadgeo.v65i1.32676">https://doi.org/10.30827/cuadgeo.v65i1.32676</a></div>
+<p style="font-size:.85rem;color:var(--tinta-2)">Publicado bajo licencia Creative Commons Reconocimiento-NoComercial 3.0. Recibido: 27-01-2025. Aceptado: 08-10-2025. Publicado: 22-01-2026.</p>
+</div></section>
+</main>
+<footer class="pie"><div class="envoltura">
+<span>© 2026 Gabriel Quezada Mata, geógrafo. Valdivia, Chile.</span>
+<span><a href="https://orcid.org/0000-0003-1365-8584" rel="me">ORCID</a> | <a href="https://github.com/Geobriel" rel="me">GitHub</a> | <a href="https://www.youtube.com/@trapanautica" rel="me">YouTube</a> | <a href="https://sites.google.com/view/gabrielquezada/p%C3%A1gina-principal" rel="me">Portafolio en Google Sites</a></span>
+</div></footer>
+</body>
+</html>
