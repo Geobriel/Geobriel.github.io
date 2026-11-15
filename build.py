@@ -19,7 +19,7 @@ ORCID = "0000-0003-1365-8584"
 DOI = "10.30827/cuadgeo.v65i1.32676"
 
 PERFILES = {                                # orden = orden en el pie y en "Contacto"
-    "LinkedIn": None,                       # p. ej. "https://www.linkedin.com/in/gabriel-quezada-mata/"
+    "LinkedIn": "https://www.linkedin.com/in/gabriel-quezada-mata-241925203/",
     "ORCID": f"https://orcid.org/{ORCID}",
     "GitHub": "https://github.com/Geobriel",
     "Instagram": None,                      # p. ej. "https://www.instagram.com/usuario/"
