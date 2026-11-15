@@ -24,6 +24,7 @@ PERFILES = {                                # orden = orden en el pie y en "Cont
     "GitHub": "https://github.com/Geobriel",
     "Instagram": None,                      # p. ej. "https://www.instagram.com/usuario/"
     "YouTube": "https://www.youtube.com/@trapanautica",
+    "ResearchGate": "https://www.researchgate.net/profile/Gabriel-Quezada-Mata",
     "Google Scholar": None,                 # cuando crees el perfil
     "Portafolio en Google Sites": "https://sites.google.com/view/gabrielquezada/p%C3%A1gina-principal",
 }
