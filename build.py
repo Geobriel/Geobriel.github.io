@@ -5,7 +5,7 @@ Todo el contenido vive en este archivo. Para cambiar de dominio, edita BASE.
 Para sumar LinkedIn, Instagram u otro perfil, completa PERFILES (lo que quede en None no se publica).
 El correo de contacto se lee de la variable de entorno CORREO_SITIO; si no existe, el sitio sale sin correo.
 """
-import json, math, os
+import json, os
 from datetime import date
 from html import escape
 
@@ -36,28 +36,15 @@ DESCRIPCION_CORTA = ("Geógrafo de la Universidad Austral de Chile, en Valdivia.
 # --------------------------------------------------------------------------------------------- utilidades
 def e(t): return escape(t, quote=True)
 
-def curvas_svg():
-    """Curvas de nivel decorativas, deterministas (sin azar)."""
-    caminos = []
-    for cx, cy, n, r0, paso, fase in [(820, 160, 9, 26, 30, 0.0), (180, 520, 7, 30, 34, 1.7), (1180, 560, 6, 34, 36, 3.1)]:
-        for k in range(n):
-            r = r0 + k * paso
-            pts = []
-            for i in range(73):
-                a = 2 * math.pi * i / 72
-                d = r * (1 + 0.16 * math.sin(3 * a + fase + k * .35) + 0.08 * math.sin(5 * a - fase + k * .2))
-                pts.append(f"{cx + d * math.cos(a) * 1.35:.1f},{cy + d * math.sin(a):.1f}")
-            grosor = "1.6" if k % 4 == 3 else "0.8"
-            caminos.append(f'<path d="M{" L".join(pts)}Z" stroke-width="{grosor}"/>')
-    return ('<svg class="curvas" viewBox="0 0 1400 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'
-            f'<g fill="none" stroke="currentColor">{"".join(caminos)}</g></svg>')
+FAVICON = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#161616"/>'
+           '<rect x="6" y="24" width="20" height="3" fill="#e8772e"/>'
+           '<text x="16" y="20" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="17" '
+           'fill="#ededed">GQ</text></svg>')
 
-LOGO = ('<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="var(--acento)"/>'
-        '<path d="M5 19c4-5 7-1 11-5s7-3 11 0M7 24c4-3 7 0 10-3s6-2 9 0M8 12c3-3 6-1 9-3s5-2 7 0" '
-        'fill="none" stroke="var(--papel)" stroke-width="1.6" stroke-linecap="round"/></svg>')
-
-NAV = [("/", "Inicio"), ("/proyectos/", "Proyectos"), ("/cartografia/", "Mapas"), ("/publicaciones/", "Publicaciones"),
+NAV = [("/proyectos/", "Proyectos"), ("/cartografia/", "Mapas"), ("/publicaciones/", "Publicaciones"),
        ("/cv/", "CV"), ("/#contacto", "Contacto"), ("/en/", "English")]
+ANIOS = {"sis-cosu": "2026", "rutas-sin-cuestas": "2026", "accesibilidad-territorial": "2026",
+         "jardin-botanico-uach": "2026", "cartografia-ilustrada": "2024 a 2025"}
 
 def persona(completa=True):
     p = {
@@ -127,9 +114,9 @@ def pagina(ruta, titulo, descripcion, cuerpo, *, jsonld=None, imagen="img/og-gab
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="theme-color" content="#2e6a4e">
+<meta name="theme-color" content="#161616">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/estilo.css">
 {extra_head}
 <script type="application/ld+json">
@@ -139,14 +126,14 @@ def pagina(ruta, titulo, descripcion, cuerpo, *, jsonld=None, imagen="img/og-gab
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <header class="cabecera"><div class="envoltura">
-<a class="marca" href="/">{LOGO}<span>{NOMBRE}</span></a>
+<a class="marca" href="/">{NOMBRE} <span>| {'geographer' if lang == 'en' else 'geógrafo'}</span></a>
 <nav class="nav" aria-label="Principal">{nav}</nav>
 </div></header>
 <main id="contenido">
 {cuerpo}
 </main>
 <footer class="pie"><div class="envoltura">
-<span>© {date.today().year} {NOMBRE}, geógrafo. Valdivia, Chile.</span>
+<span>{NOMBRE}. Valdivia, Chile.</span>
 <span>{pie_perfiles}</span>
 </div></footer>
 </body>
@@ -388,66 +375,94 @@ HABILIDADES = [("QGIS", "Avanzado"), ("ArcGIS", "Avanzado"), ("Python (GeoPandas
                ("Levantamiento GPS GNSS", "Avanzado"), ("Excel y Word", "Avanzado")]
 
 # --------------------------------------------------------------------------------------------- páginas
-def tarjeta(p):
-    w, h = p["dims"]
-    tags = "".join(f"<li>{e(t)}</li>" for t in p["etiquetas"][:4])
-    return (f'<a class="tarjeta" href="/proyectos/{p["slug"]}/"><img src="/img/{p["img"]}" alt="" width="{w}" height="{h}" loading="lazy" decoding="async">'
-            f'<div class="cuerpo"><h3>{e(p["titulo"])}</h3><p>{e(p["corto"])}</p><ul class="etiquetas">{tags}</ul></div></a>')
+RESUMEN = ("El avance de la urbanización y la presión sobre áreas de alto valor ecológico exige contar con estudios que puedan dar cuenta de tales procesos. "
+    "Este trabajo analiza los cambios espaciotemporales según la clasificación de Zonas Climáticas Locales (ZCL) en la comuna de Valdivia, Chile, durante el período 2016-2024, "
+    "mediante la integración de datos satelitales multisensor y técnicas de aprendizaje automático. La metodología combina datos de Sentinel-1, Sentinel-2 y ALOS PALSAR, "
+    "adaptando el sistema ZCL para incluir categorías específicas de humedales y diferenciar entre bosque nativo y plantaciones forestales. Utilizando el algoritmo Random Forest, "
+    "se alcanzó una precisión global superior al 96 % en la clasificación. Los resultados revelan una expansión urbana significativa del 47 % en las zonas construidas, "
+    "con una tasa de crecimiento anual del 6 %, acompañada de una notable densificación en áreas periurbanas y rurales. Se identificó una reconfiguración del paisaje forestal, "
+    "con un aumento de 40,28 km² en bosque nativo y una disminución de 25,14 km² en plantaciones forestales. La vegetación de los humedales experimentó un incremento del 8 % "
+    "en su superficie. Este trabajo contribuye a la comprensión de las dinámicas en el cambio de la cobertura/uso de suelo de una ciudad en transición a la metropolización "
+    "y ciudad humedal como Valdivia, demostrando el potencial de las técnicas de teledetección y aprendizaje automático para el monitoreo de tales cambios.")
 
-def tarjeta_articulo():
-    return (f'<a class="tarjeta" href="{ARTICULO["ruta"]}"><img src="/img/valdivia-zonas-climaticas-locales-2024.webp" alt="" width="1600" height="1690" loading="lazy" decoding="async">'
-            '<div class="cuerpo"><h3>Cambio de cobertura de suelo en Valdivia, 2016 a 2024</h3>'
-            '<p>Artículo científico: Sentinel-1, Sentinel-2, ALOS PALSAR y Random Forest para mapear las Zonas Climáticas Locales de Valdivia, con exactitud global sobre 96 %.</p>'
-            '<ul class="etiquetas"><li>Publicación</li><li>Random Forest</li><li>Sentinel</li><li>Zonas Climáticas Locales</li></ul></div></a>')
+def item_proyectos():
+    filas = [("2026", "Cambio de cobertura de suelo en Valdivia, 2016 a 2024 (artículo)", ARTICULO["ruta"],
+              "Sentinel-1, Sentinel-2, ALOS PALSAR y Random Forest. Cuadernos Geográficos 65(1).")]
+    filas += [(ANIOS[p["slug"]], p["titulo"], f"/proyectos/{p['slug']}/", p["corto"]) for p in PROYECTOS]
+    return "".join(f'<li><span class="fecha">{a}</span><div><a href="{u}">{e(t)}</a><p>{e(d)}</p></div></li>'
+                   for a, t, u, d in filas)
 
 def contacto_html():
-    items = [f'<li><a href="mailto:{CORREO}">Correo: {CORREO}</a></li>'] if CORREO else []
+    items = [f'<li><a href="mailto:{CORREO}">{CORREO}</a></li>'] if CORREO else []
     items += [f'<li><a href="{u}" rel="me">{n}</a></li>' for n, u in PERFILES.items() if u]
-    return f'<ul class="contacto">{"".join(items)}</ul>'
+    return f'<ul class="enlaces">{"".join(items)}</ul>'
+
+def visor(lang="es"):
+    es = lang == "es"
+    t = (lambda a, b: a if es else b)
+    return f"""<div class="visor">
+<div id="mapa" role="region" aria-label="{t('Mapa de proyectos', 'Project map')}"><p id="aviso-zoom" hidden>{t('Acércate para ver los hexágonos', 'Zoom in to see the hexagons')}</p></div>
+<form class="panel" id="capas">
+<fieldset><legend>{t('Mapa base', 'Basemap')}</legend>
+<label><input type="radio" name="base" value="oscuro" checked> {t('Oscuro', 'Dark')}</label>
+<label><input type="radio" name="base" value="satelite"> {t('Satélite', 'Satellite')}</label></fieldset>
+<fieldset><legend>{t('Proyectos', 'Projects')}</legend>
+<label><input type="checkbox" name="lugares" checked> {t('Lugares de trabajo', 'Work locations')}</label>
+<label><input type="checkbox" name="estudio" checked> {t('Comunas de estudio', 'Study municipalities')}</label></fieldset>
+<fieldset><legend>{t('Cobertura de suelo, Valdivia', 'Land cover, Valdivia')}</legend>
+<label><input type="checkbox" name="cobertura2016"> 2016</label>
+<label><input type="checkbox" name="cobertura2024"> 2024</label>
+<p class="nota">XGBoost, Sentinel-2. SIS-CoSu.</p></fieldset>
+<fieldset><legend>{t('Indicadores por comuna, Chile', 'Indicators by municipality, Chile')}</legend>
+<select name="indicador" aria-label="{t('Indicador comunal', 'Municipal indicator')}"><option value="">{t('Ninguno', 'None')}</option>
+<option value="finan">{t('Tiempo a servicios financieros', 'Time to financial services')}</option>
+<option value="salud">{t('Tiempo a salud', 'Time to health care')}</option>
+<option value="educ">{t('Tiempo a educación media', 'Time to secondary school')}</option>
+<option value="pav">{t('Conexión a caminos pavimentados', 'Paved road connection')}</option></select>
+<p class="nota">{t('Proyecto IDI IT25I0105.', 'IDI project IT25I0105.')}</p></fieldset>
+<fieldset><legend>{t('Tiempo de viaje, hexágonos H3', 'Travel time, H3 hexagons')}</legend>
+<select name="hex" aria-label="{t('Servicio', 'Service')}"><option value="">{t('Ninguno', 'None')}</option>
+<option value="salud">{t('Salud', 'Health care')}</option><option value="educ">{t('Educación', 'Education')}</option>
+<option value="finan">{t('Servicios financieros', 'Financial services')}</option></select>
+<p class="nota">{t('Valdivia, Panguipulli, Lago Ranco, Calbuco, Quemchi, Pucón, Melipeuco, Curacautín y Lonquimay.', 'Nine municipalities in southern Chile.')}</p></fieldset>
+<fieldset><legend>{t('Jardín Botánico UACh', 'UACh Botanical Garden')}</legend>
+<label><input type="checkbox" name="jardin"> {t('Levantamiento GNSS', 'GNSS survey')}</label></fieldset>
+<div id="leyenda"></div>
+</form>
+</div>"""
+
+SCRIPTS_MAPA = ('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.css">\n'
+                '<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.js" defer></script>\n'
+                '<script src="https://cdn.jsdelivr.net/npm/h3-js@4.1.0/dist/h3-js.umd.js" defer></script>\n'
+                '<script src="/assets/mapa.js" defer></script>')
 
 def inicio():
-    cuerpo = f"""
-<div class="portada">{curvas_svg()}<div class="envoltura">
+    cuerpo = f"""{visor()}
+<div class="envoltura">
+<div class="presentacion">
+<img src="/img/gabriel-quezada-mata-geografo.webp" alt="Gabriel Quezada Mata, geógrafo" width="554" height="689">
 <div>
-<p class="antetitulo">Geógrafo | Valdivia, Chile</p>
 <h1>{NOMBRE}</h1>
-<p class="subtitulo">Soy geógrafo de la Universidad Austral de Chile. Trabajo con imágenes satelitales, aprendizaje automático y SIG para entender cómo cambia el territorio, y con cartografía para que esos resultados se entiendan.</p>
-<div class="botones"><a class="boton lleno" href="/proyectos/">Ver proyectos</a><a class="boton" href="/cv/">Currículum</a><a class="boton" href="#contacto">Contacto</a></div>
+<p class="cargo">Geógrafo, Universidad Austral de Chile. Valdivia.</p>
+<p>Trabajo con imágenes satelitales, aprendizaje automático y SIG para estudiar cómo cambia el territorio, y con cartografía para comunicar esos resultados.</p>
+<p>Hoy soy analista de datos geoespaciales en el proyecto FONDEF IDeA SIS-CoSu, donde clasifico la cobertura de suelo de Valdivia con Landsat, Sentinel-2 y una red U-Net. También he calculado indicadores de accesibilidad para todas las comunas de Chile, hecho levantamientos GNSS y dibujado mapas para fundaciones y proyectos culturales.</p>
+<p>Herramientas: Python, QGIS, ArcGIS, R, Illustrator y Photoshop.</p>
 </div>
-<figure class="figura-portada retrato"><img src="/img/gabriel-quezada-mata-geografo.webp" alt="Gabriel Quezada Mata, geógrafo" width="554" height="689" fetchpriority="high"></figure>
-</div></div>
+</div>
 
-<section><div class="envoltura">
-<h2>Qué hago</h2>
-<p class="intro-seccion">Geografía aplicada con código: desde la descarga de los datos hasta el mapa final.</p>
-<ul class="areas">
-<li><strong>Teledetección</strong><span>Series de tiempo Landsat, Sentinel-1 y Sentinel-2; clasificación de cobertura y uso de suelo con Random Forest, XGBoost y U-Net.</span></li>
-<li><strong>Accesibilidad y redes</strong><span>Tiempos de viaje por la red vial con OpenStreetMap y hexágonos H3; indicadores comunales.</span></li>
-<li><strong>Cartografía</strong><span>Mapas técnicos, cartas de terreno, pósters y mapas ilustrados.</span></li>
-<li><strong>Terreno y datos</strong><span>Levantamientos GPS GNSS, bases de datos espaciales y automatización en Python.</span></li>
-</ul>
-</div></section>
-
-<section id="proyectos"><div class="envoltura">
 <h2>Proyectos</h2>
-<p class="intro-seccion">Trabajos recientes en investigación, consultoría y proyectos propios. Más mapas en el <a href="/cartografia/">portafolio cartográfico</a>.</p>
-<div class="rejilla">{tarjeta_articulo()}{"".join(tarjeta(p) for p in PROYECTOS)}</div>
-</div></section>
+<ul class="lista">{item_proyectos()}</ul>
+<p style="margin-top:14px"><a href="/cartografia/">Portafolio cartográfico</a> | <a href="/cv/">Currículum</a></p>
 
-<section><div class="envoltura">
 <h2>Publicación</h2>
-<div class="cita">{CITA}</div>
-<p><a href="{ARTICULO['ruta']}">Resumen, mapas y PDF del artículo →</a></p>
-</div></section>
+<p class="referencia">{CITA}</p>
 
-<section id="contacto"><div class="envoltura">
-<h2>Contacto</h2>
-<p class="intro-seccion">¿Necesitas cartografía, análisis espacial o procesamiento de imágenes satelitales? Escríbeme.</p>
+<h2 id="contacto">Contacto</h2>
 {contacto_html()}
-</div></section>"""
+</div>"""
     pagina("/", f"{NOMBRE} | Geógrafo en Valdivia: SIG, teledetección y cartografía",
            "Gabriel Quezada Mata, geógrafo de la Universidad Austral de Chile en Valdivia. Teledetección, clasificación de cobertura de suelo con aprendizaje automático, accesibilidad, SIG y cartografía.",
-           cuerpo, hreflang=[("es", "/"), ("en", "/en/"), ("x-default", "/")], prioridad="1.0",
+           cuerpo, hreflang=[("es", "/"), ("en", "/en/"), ("x-default", "/")], prioridad="1.0", extra_head=SCRIPTS_MAPA,
            jsonld=[{"@type": "ProfilePage", "@id": f"{BASE}/#pagina", "url": f"{BASE}/", "name": NOMBRE,
                     "mainEntity": {"@id": f"{BASE}/#persona"}, "dateModified": HOY, "inLanguage": "es"}])
 
@@ -455,16 +470,13 @@ def pagina_proyecto(p):
     ruta = f"/proyectos/{p['slug']}/"
     datos = "".join(f"<dt>{e(k)}</dt><dd>{v}</dd>" for k, v in p["datos"])
     figs = "".join(figura(f, a, c, *d) for f, a, c, d in p["figs"])
-    cuerpo = f"""{migas(("/proyectos/", "Proyectos"), (None, p["titulo"]))}
-<section><div class="envoltura ficha">
-<p class="antetitulo">Proyecto de {NOMBRE}</p>
+    cuerpo = f"""<div class="envoltura ficha pagina">
 <h1>{e(p['titulo'])}</h1>
-<p class="subtitulo">{e(p['corto'])}</p>
 <dl class="datos">{datos}</dl>
 {p['cuerpo']}
 {figs}
-<p><a href="/proyectos/">← Todos los proyectos</a> | <a href="/#contacto">Contacto</a></p>
-</div></section>"""
+<p><a href="/proyectos/">Todos los proyectos</a></p>
+</div>"""
     pagina(ruta, f"{p['titulo']} | {NOMBRE}, geógrafo", p["desc"], cuerpo, imagen=f"img/{p['img']}", tipo_og="article",
            jsonld=[ld_migas(("Proyectos", "/proyectos/"), (p["titulo"], ruta)),
                    {"@type": "CreativeWork", "name": p["titulo"], "description": p["desc"], "url": BASE + ruta,
@@ -472,12 +484,11 @@ def pagina_proyecto(p):
                     "keywords": ", ".join(p["etiquetas"]), "inLanguage": "es"}])
 
 def indice_proyectos():
-    cuerpo = f"""{migas((None, "Proyectos"))}
-<section><div class="envoltura">
+    cuerpo = f"""<div class="envoltura pagina">
 <h1>Proyectos</h1>
-<p class="subtitulo">Teledetección, accesibilidad, levantamientos en terreno y cartografía de {NOMBRE}, geógrafo en Valdivia.</p>
-<div class="rejilla">{tarjeta_articulo()}{"".join(tarjeta(p) for p in PROYECTOS)}</div>
-</div></section>"""
+<ul class="lista">{item_proyectos()}</ul>
+<p style="margin-top:14px"><a href="/cartografia/">Portafolio cartográfico</a></p>
+</div>"""
     pagina("/proyectos/", f"Proyectos de {NOMBRE} | Geógrafo, SIG y teledetección",
            "Portafolio de Gabriel Quezada Mata: clasificación de cobertura de suelo con U-Net, indicadores de accesibilidad, levantamiento GNSS, ruteo y cartografía ilustrada.",
            cuerpo, prioridad="0.9", jsonld=[ld_migas(("Proyectos", "/proyectos/"))])
@@ -487,13 +498,11 @@ def cartografia():
     for t, meta, txt, imgs in GALERIA:
         figs = "".join(f'<a href="/img/{f}"><img src="/img/{f}" alt="{e(a)}" width="{w}" height="{h}" loading="lazy" decoding="async"></a>'
                        for f, a, w, h in imgs)
-        fichas.append(f'<article class="mapa-ficha"><h2>{e(t)}</h2><p class="meta">{e(meta)}</p><p>{txt}</p><div class="galeria">{figs}</div></article>')
-    cuerpo = f"""{migas((None, "Portafolio cartográfico"))}
-<section><div class="envoltura">
+        fichas.append(f'<section class="mapa-ficha"><h2>{e(t)}</h2><p class="meta">{e(meta)}</p><p>{txt}</p><div class="galeria">{figs}</div></section>')
+    cuerpo = f"""<div class="envoltura pagina">
 <h1>Portafolio cartográfico</h1>
-<p class="subtitulo">Mapas de {NOMBRE}, geógrafo: cartografía para publicaciones científicas, terreno, fundaciones y proyectos culturales en el sur de Chile.</p>
 {"".join(fichas)}
-</div></section>"""
+</div>"""
     imagenes = [{"@type": "ImageObject", "contentUrl": f"{BASE}/img/{f}", "name": t, "description": a,
                  "creator": {"@id": f"{BASE}/#persona"}, "creditText": NOMBRE, "copyrightNotice": NOMBRE}
                 for t, _, _, imgs in GALERIA for f, a, _, _ in imgs]
@@ -505,13 +514,11 @@ def cartografia():
                     "author": {"@id": f"{BASE}/#persona"}, "image": imagenes}])
 
 def publicaciones():
-    cuerpo = f"""{migas((None, "Publicaciones"))}
-<section><div class="envoltura ficha">
+    cuerpo = f"""<div class="envoltura ficha pagina">
 <h1>Publicaciones</h1>
-<p class="subtitulo">Artículos científicos de {NOMBRE}. Perfil ORCID: <a href="https://orcid.org/{ORCID}">{ORCID}</a>.</p>
-<h2>2026</h2>
-<div class="cita">{CITA}<br><a href="{ARTICULO['ruta']}">Resumen y mapas</a> | <a href="{ARTICULO['pdf']}">PDF</a></div>
-</div></section>"""
+<p class="referencia">{CITA}<br><a href="{ARTICULO['ruta']}">Resumen y mapas</a> | <a href="{ARTICULO['pdf']}">PDF</a></p>
+<p>ORCID: <a href="https://orcid.org/{ORCID}">{ORCID}</a></p>
+</div>"""
     pagina("/publicaciones/", f"Publicaciones de {NOMBRE}, geógrafo",
            "Publicaciones científicas de Gabriel Quezada Mata sobre teledetección, aprendizaje automático y cambio de cobertura de suelo en Valdivia, Chile.",
            cuerpo, prioridad="0.8", jsonld=[ld_migas(("Publicaciones", "/publicaciones/"))])
@@ -526,22 +533,22 @@ def articulo():
              ("citation_firstpage", a["paginas"][0]), ("citation_lastpage", a["paginas"][1]),
              ("citation_doi", DOI), ("citation_language", "es"), ("citation_pdf_url", BASE + a["pdf"])]
     extra = "\n".join(f'<meta name="{k}" content="{e(v)}">' for k, v in meta)
-    cuerpo = f"""{migas(("/publicaciones/", "Publicaciones"), (None, "Valdivia 2016 a 2024"))}
-<section><div class="envoltura ficha">
-<p class="antetitulo">Artículo científico | Cuadernos Geográficos 65(1), 2026</p>
+    cuerpo = f"""<div class="envoltura ficha pagina">
 <h1>{e(a['titulo'])}</h1>
-<p><strong>Gabriel Quezada Mata</strong>, Francisco Maturana Miranda, Mauricio Morales Soto y Pablo Iribarren Anacona. Universidad Austral de Chile.</p>
-<div class="botones"><a class="boton lleno" href="{a['pdf']}">Descargar PDF</a><a class="boton" href="https://doi.org/{DOI}">DOI: {DOI}</a></div>
+<dl class="datos"><dt>Autores</dt><dd>Gabriel Quezada Mata, Francisco Maturana Miranda, Mauricio Morales Soto y Pablo Iribarren Anacona</dd>
+<dt>Revista</dt><dd>Cuadernos Geográficos 65(1), 26-50, 2026</dd>
+<dt>DOI</dt><dd><a href="https://doi.org/{DOI}">{DOI}</a></dd>
+<dt>Texto completo</dt><dd><a href="{a['pdf']}">PDF</a></dd></dl>
 <h2>Resumen</h2>
-<p>El avance de la urbanización y la presión sobre áreas de alto valor ecológico exige contar con estudios que puedan dar cuenta de tales procesos. Este trabajo analiza los cambios espaciotemporales según la clasificación de Zonas Climáticas Locales (ZCL) en la comuna de Valdivia, Chile, durante el período 2016-2024, mediante la integración de datos satelitales multisensor y técnicas de aprendizaje automático. La metodología combina datos de Sentinel-1, Sentinel-2 y ALOS PALSAR, adaptando el sistema ZCL para incluir categorías específicas de humedales y diferenciar entre bosque nativo y plantaciones forestales. Utilizando el algoritmo Random Forest, se alcanzó una precisión global superior al 96 % en la clasificación. Los resultados revelan una expansión urbana significativa del 47 % en las zonas construidas, con una tasa de crecimiento anual del 6 %, acompañada de una notable densificación en áreas periurbanas y rurales. Se identificó una reconfiguración del paisaje forestal, con un aumento de 40,28 km² en bosque nativo y una disminución de 25,14 km² en plantaciones forestales. La vegetación de los humedales experimentó un incremento del 8 % en su superficie. Este trabajo contribuye a la comprensión de las dinámicas en el cambio de la cobertura/uso de suelo de una ciudad en transición a la metropolización y ciudad humedal como Valdivia, demostrando el potencial de las técnicas de teledetección y aprendizaje automático para el monitoreo de tales cambios.</p>
-<p><strong>Palabras clave:</strong> Sentinel; DEM; Random Forest; Sensores remotos; Zonas Climáticas Locales; LULC.</p>
-<div class="galeria">{figura("valdivia-zonas-climaticas-locales-2016.webp", "Mapa de Zonas Climáticas Locales de la comuna de Valdivia en 2016", "Zonas Climáticas Locales de la comuna de Valdivia, 2016.", 1280, 1352)}{figura("valdivia-zonas-climaticas-locales-2024-mapa.webp", "Mapa de Zonas Climáticas Locales de la comuna de Valdivia en 2024", "Zonas Climáticas Locales de la comuna de Valdivia, 2024.", 1280, 1352)}</div>
+<p>{RESUMEN}</p>
+<p>Palabras clave: Sentinel; DEM; Random Forest; Sensores remotos; Zonas Climáticas Locales; LULC.</p>
+<div class="galeria">{figura("valdivia-zonas-climaticas-locales-2016.webp", "Mapa de Zonas Climáticas Locales de la comuna de Valdivia en 2016", "Zonas Climáticas Locales, Valdivia, 2016.", 1280, 1352)}{figura("valdivia-zonas-climaticas-locales-2024-mapa.webp", "Mapa de Zonas Climáticas Locales de la comuna de Valdivia en 2024", "Zonas Climáticas Locales, Valdivia, 2024.", 1280, 1352)}</div>
 <h2 lang="en">Abstract</h2>
 <p lang="en"><em>{e(a['titulo_en'])}.</em> This study analyzes the spatiotemporal changes according to the Local Climate Zone (LCZ) classification in the commune of Valdivia, Chile, during 2016-2024, integrating multi-sensor satellite data (Sentinel-1, Sentinel-2 and ALOS PALSAR) and machine learning. Using Random Forest, overall accuracy exceeded 96 %. Built-up areas expanded by 47 %, native forest increased by 40.28 km², forest plantations decreased by 25.14 km² and wetland vegetation grew by 8 %.</p>
 <h2>Cómo citar</h2>
-<div class="cita">{CITA}</div>
-<p style="font-size:.85rem;color:var(--tinta-2)">Publicado bajo licencia Creative Commons Reconocimiento-NoComercial 3.0. Recibido: 27-01-2025. Aceptado: 08-10-2025. Publicado: 22-01-2026.</p>
-</div></section>"""
+<p class="referencia">{CITA}</p>
+<p style="font-size:.85rem;color:var(--texto-2)">Licencia Creative Commons Reconocimiento-NoComercial 3.0. Recibido: 27-01-2025. Aceptado: 08-10-2025. Publicado: 22-01-2026.</p>
+</div>"""
     pagina(ruta, f"Cambio de cobertura de suelo en Valdivia 2016-2024 | {NOMBRE} et al., Cuadernos Geográficos",
            "Artículo de Gabriel Quezada Mata y otros en Cuadernos Geográficos (2026): teledetección multisensor y Random Forest para analizar el cambio de cobertura de suelo en Valdivia, Chile, 2016-2024.",
            cuerpo, imagen="img/valdivia-zonas-climaticas-locales-2024.webp", extra_head=extra, tipo_og="article", prioridad="0.9",
@@ -561,27 +568,25 @@ def articulo():
 
 def cv():
     exp = "".join(
-        f'<li><span class="fecha">{f}</span><h3>{e(c)}</h3><p class="lugar">{e(l)}</p><p>{e(d)}'
-        + (f' <a href="{r}">Ver proyecto</a>' if r else "") + "</p></li>" for f, c, l, d, r in EXPERIENCIA)
+        f'<li><span class="fecha">{f}</span><div><h3>{e(c)}</h3><p class="lugar">{e(l)}</p><p>{e(d)}'
+        + (f' <a href="{r}">Ver proyecto</a>' if r else "") + "</p></div></li>" for f, c, l, d, r in EXPERIENCIA)
     hab = "".join(f"<tr><td>{e(h)}</td><td>{n}</td></tr>" for h, n in HABILIDADES)
-    cuerpo = f"""{migas((None, "Currículum"))}
-<section><div class="envoltura ficha">
-<p class="antetitulo">Currículum</p>
-<h1>{NOMBRE}, geógrafo</h1>
-<p class="subtitulo">Geógrafo con experiencia en análisis espacial y desarrollo de soluciones SIG aplicadas a problemas territoriales. Uso Python para procesamiento geoespacial, automatización y modelamiento, incluyendo clasificación de uso de suelo con Random Forest y U-Net y análisis de accesibilidad con redes viales. Trabajo con datos multiespectrales, radar y modelos de elevación para generar cartografía y productos técnicos para la planificación y la toma de decisiones.</p>
+    cuerpo = f"""<div class="envoltura ficha pagina">
+<h1>{NOMBRE}</h1>
+<p>Geógrafo con experiencia en análisis espacial y desarrollo de soluciones SIG aplicadas a problemas territoriales. Uso Python para procesamiento geoespacial, automatización y modelamiento, incluyendo clasificación de uso de suelo con Random Forest y U-Net y análisis de accesibilidad con redes viales. Trabajo con datos multiespectrales, radar y modelos de elevación para generar cartografía y productos técnicos para la planificación y la toma de decisiones.</p>
 <h2>Formación</h2>
-<ul class="tiempo"><li><span class="fecha">Titulado el 22 de mayo de 2025</span><h3>Geógrafo</h3><p class="lugar">Universidad Austral de Chile, Valdivia. Área: medio ambiente.</p></li></ul>
+<ul class="lista"><li><span class="fecha">2025</span><div><h3>Geógrafo</h3><p class="lugar">Universidad Austral de Chile, Valdivia. Titulado el 22 de mayo de 2025. Área: medio ambiente.</p></div></li></ul>
 <h2>Experiencia</h2>
-<ul class="tiempo">{exp}</ul>
+<ul class="lista">{exp}</ul>
 <h2>Publicaciones</h2>
-<div class="cita">{CITA}</div>
+<p class="referencia">{CITA}</p>
 <h2>Competencias técnicas</h2>
-<table><thead><tr><th>Programa o lenguaje</th><th>Nivel</th></tr></thead><tbody>{hab}</tbody></table>
+<table><tbody>{hab}</tbody></table>
 <h2>Idiomas</h2>
-<p>Español nativo. Inglés de nivel laboral y cotidiano (cinco meses de experiencia en California, Estados Unidos).</p>
+<p>Español nativo. Inglés de nivel laboral y cotidiano (cinco meses en California, Estados Unidos).</p>
 <h2>Contacto</h2>
 {contacto_html()}
-</div></section>"""
+</div>"""
     pagina("/cv/", f"Currículum de {NOMBRE} | Geógrafo, Universidad Austral de Chile",
            "CV de Gabriel Quezada Mata, geógrafo titulado en la Universidad Austral de Chile: experiencia en teledetección, SIG, accesibilidad, levantamiento GNSS y cartografía en Valdivia y el sur de Chile.",
            cuerpo, prioridad="0.9", tipo_og="profile",
@@ -590,38 +595,32 @@ def cv():
                     "dateModified": HOY, "inLanguage": "es"}])
 
 def ingles():
-    cuerpo = f"""
-<div class="portada">{curvas_svg()}<div class="envoltura">
+    cuerpo = f"""{visor("en")}
+<div class="envoltura">
+<div class="presentacion">
+<img src="/img/gabriel-quezada-mata-geografo.webp" alt="Gabriel Quezada Mata, geographer" width="554" height="689">
 <div>
-<p class="antetitulo">Geographer | Valdivia, Chile</p>
 <h1>{NOMBRE}</h1>
-<p class="subtitulo">I am a geographer from Universidad Austral de Chile. I use satellite imagery, machine learning and GIS to understand how land changes, and cartography to make those results clear.</p>
-<div class="botones"><a class="boton lleno" href="/proyectos/">Projects (Spanish)</a><a class="boton" href="#contact">Contact</a></div>
+<p class="cargo">Geographer, Universidad Austral de Chile. Valdivia, Chile.</p>
+<p>I use satellite imagery, machine learning and GIS to study how land changes, and cartography to communicate the results.</p>
+<p>I currently work as a geospatial data analyst for the FONDEF IDeA project SIS-CoSu (ID26I10080) at Universidad Austral de Chile: multitemporal land cover classification of Valdivia with Landsat, Sentinel-2 and a U-Net, reconstruction of 1990s land cover and simulation of future scenarios. I have also built accessibility indicators for every municipality in Chile, carried out GNSS surveys and drawn maps for foundations and cultural projects.</p>
+<p>Tools: Python, QGIS, ArcGIS, R, Illustrator and Photoshop.</p>
 </div>
-<figure class="figura-portada retrato"><img src="/img/gabriel-quezada-mata-geografo.webp" alt="Gabriel Quezada Mata, geographer" width="554" height="689"></figure>
-</div></div>
-<section><div class="envoltura ficha">
-<h2>What I do</h2>
-<ul>
-<li><strong>Remote sensing:</strong> Landsat, Sentinel-1 and Sentinel-2 time series; land use and land cover (LULC) classification with Random Forest, XGBoost and U-Net.</li>
-<li><strong>Accessibility analysis:</strong> travel times over OpenStreetMap road networks on H3 hexagons; municipal indicators for all of Chile.</li>
-<li><strong>Cartography:</strong> technical maps, field maps, posters and illustrated maps.</li>
-<li><strong>Fieldwork and data:</strong> GNSS surveys, spatial databases and Python automation.</li>
-</ul>
-<h2>Current work</h2>
-<p>Geospatial data analyst at Universidad Austral de Chile for the FONDEF IDeA project SIS-CoSu (ID26I10080): multitemporal land cover classification of Valdivia with a U-Net, reconstruction of 1990s land cover and simulation of future scenarios.</p>
+</div>
 <h2>Publication</h2>
-<div class="cita">Quezada Mata, G., Maturana Miranda, F., Morales Soto, M., &amp; Iribarren Anacona, P. (2026). <em>{e(ARTICULO['titulo_en'])}</em> [in Spanish]. Cuadernos Geográficos, 65(1), 26-50. <a href="https://doi.org/{DOI}">https://doi.org/{DOI}</a></div>
+<p class="referencia">Quezada Mata, G., Maturana Miranda, F., Morales Soto, M., &amp; Iribarren Anacona, P. (2026). <em>{e(ARTICULO['titulo_en'])}</em> [in Spanish]. Cuadernos Geográficos, 65(1), 26-50. <a href="https://doi.org/{DOI}">https://doi.org/{DOI}</a></p>
+<h2>More</h2>
+<p><a href="/proyectos/">Projects</a> | <a href="/cartografia/">Map portfolio</a> | <a href="/cv/">CV</a> (in Spanish)</p>
 <h2 id="contact">Contact</h2>
 {contacto_html()}
-</div></section>"""
+</div>"""
     pagina("/en/", f"{NOMBRE} | Geographer in Valdivia, Chile: GIS, remote sensing and cartography",
            "Gabriel Quezada Mata is a geographer from Universidad Austral de Chile in Valdivia: remote sensing, land cover classification with machine learning, accessibility analysis, GIS and cartography.",
-           cuerpo, lang="en", hreflang=[("es", "/"), ("en", "/en/"), ("x-default", "/")], prioridad="0.8")
+           cuerpo, lang="en", hreflang=[("es", "/"), ("en", "/en/"), ("x-default", "/")], prioridad="0.8", extra_head=SCRIPTS_MAPA)
 
 def error404():
-    cuerpo = """<section><div class="envoltura ficha"><h1>Esta página no está en el mapa</h1>
-<p>La dirección no existe o cambió. <a href="/">Volver al inicio</a> o ver los <a href="/proyectos/">proyectos</a>.</p></div></section>"""
+    cuerpo = """<div class="envoltura ficha pagina"><h1>Página no encontrada</h1>
+<p>La dirección no existe o cambió. <a href="/">Volver al inicio</a>.</p></div>"""
     pagina("/404.html", f"Página no encontrada | {NOMBRE}", "Página no encontrada.", cuerpo,
            extra_head='<meta name="robots" content="noindex">')
 
@@ -634,8 +633,7 @@ def extras():
     with open(os.path.join(RAIZ, "robots.txt"), "w", encoding="utf-8", newline="\n") as f:
         f.write(f"User-agent: *\nAllow: /\n\nSitemap: {BASE}/sitemap.xml\n")
     with open(os.path.join(RAIZ, "favicon.svg"), "w", encoding="utf-8", newline="\n") as f:
-        f.write(LOGO.replace('aria-hidden="true"', 'xmlns="http://www.w3.org/2000/svg"')
-                .replace("var(--acento)", "#2e6a4e").replace("var(--papel)", "#f5f2ea"))
+        f.write(FAVICON)
     open(os.path.join(RAIZ, ".nojekyll"), "w").close()
     dominio = BASE.split("//")[1]
     cname = os.path.join(RAIZ, "CNAME")
