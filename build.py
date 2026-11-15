@@ -82,6 +82,10 @@ def persona(completa=True):
 
 MAPA = []
 
+# versión de cada archivo según su contenido: si cambia, el navegador baja el nuevo en vez de usar el guardado
+import hashlib
+VERSION = {n: hashlib.md5(open(os.path.join(RAIZ, "assets", n), "rb").read()).hexdigest()[:8] for n in ("estilo.css", "mapa.js")}
+
 def pagina(ruta, titulo, descripcion, cuerpo, *, jsonld=None, imagen="img/og-gabriel-quezada-mata.jpg",
            extra_head="", hreflang=None, lang="es", tipo_og="website", prioridad="0.7"):
     url = BASE + ruta
@@ -116,8 +120,8 @@ def pagina(ruta, titulo, descripcion, cuerpo, *, jsonld=None, imagen="img/og-gab
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="theme-color" content="#161616">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/estilo.css">
+<link href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/estilo.css?v={VERSION['estilo.css']}">
 {extra_head}
 <script type="application/ld+json">
 {ld}
@@ -404,7 +408,8 @@ def visor(lang="es"):
 <div id="mapa" role="region" aria-label="{t('Mapa de proyectos', 'Project map')}"><p id="aviso-zoom" hidden>{t('Acércate para ver los hexágonos', 'Zoom in to see the hexagons')}</p></div>
 <form class="panel" id="capas">
 <fieldset><legend>{t('Mapa base', 'Basemap')}</legend>
-<label><input type="radio" name="base" value="oscuro" checked> {t('Oscuro', 'Dark')}</label>
+<label><input type="radio" name="base" value="claro" checked> {t('Claro', 'Light')}</label>
+<label><input type="radio" name="base" value="oscuro"> {t('Oscuro', 'Dark')}</label>
 <label><input type="radio" name="base" value="satelite"> {t('Satélite', 'Satellite')}</label></fieldset>
 <fieldset><legend>{t('Proyectos', 'Projects')}</legend>
 <label><input type="checkbox" name="lugares" checked> {t('Lugares de trabajo', 'Work locations')}</label>
@@ -434,7 +439,7 @@ def visor(lang="es"):
 SCRIPTS_MAPA = ('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.css">\n'
                 '<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.js" defer></script>\n'
                 '<script src="https://cdn.jsdelivr.net/npm/h3-js@4.1.0/dist/h3-js.umd.js" defer></script>\n'
-                '<script src="/assets/mapa.js" defer></script>')
+                '<script src="/assets/mapa.js?v=' + VERSION['mapa.js'] + '" defer></script>')
 
 def inicio():
     cuerpo = f"""{visor()}
